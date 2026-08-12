@@ -12,7 +12,7 @@ const VULA_API = process.env.NEXT_PUBLIC_VULA_API_URL || "https://vula-group-pro
  *  off_the_hook/src/components/PuckRender.tsx — the only change is taking tenantId as a prop
  *  (resolved per-request by middleware.ts) instead of a single hardcoded env var, since this
  *  app serves every tenant, not just one. */
-export default function PuckRender({ tenantId, data, theme }: { tenantId: string; data: Data; theme?: Record<string, string> }) {
+export default function PuckRender({ tenantId, data, theme }: { tenantId: string; data: Data; theme?: Record<string, string | undefined> }) {
   useEffect(() => {
     const w = window as unknown as Record<string, string>;
     w.__VULA_PAGE_TENANT = tenantId;

@@ -1,5 +1,5 @@
 import type { Data } from "@measured/puck";
-import { getPublishedPage, getTenantInfo } from "@/lib/vula-pages";
+import { getPublishedPage, getBrand } from "@/lib/vula-pages";
 import PuckRender from "@/components/PuckRender";
 
 export const revalidate = 30;
@@ -16,9 +16,10 @@ export async function generateMetadata({ params }: { params: Promise<{ tenant: s
 // worked for that one tenant; every other tenant had no equivalent at all before this app).
 export default async function TenantHomePage({ params }: { params: Promise<{ tenant: string }> }) {
   const { tenant } = await params;
-  const [page, info] = await Promise.all([getPublishedPage(tenant, "home"), getTenantInfo(tenant)]);
+  const [page, brand] = await Promise.all([getPublishedPage(tenant, "home"), getBrand(tenant)]);
   if (page) {
-    return <PuckRender tenantId={tenant} data={page.puck_data as unknown as Data} theme={info.theme} />;
+    return <PuckRender tenantId={tenant} data={page.puck_data as unknown as Data}
+      theme={{ accent: brand.accent_color, ink: brand.ink_color }} />;
   }
   return (
     <main className="min-h-screen flex items-center justify-center px-6 text-center">

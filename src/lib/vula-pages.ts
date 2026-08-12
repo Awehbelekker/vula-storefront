@@ -28,13 +28,33 @@ export async function listPublishedPages(tenant: string): Promise<{ slug: string
   return (await res.json()).pages || [];
 }
 
-/** Tenant theme + store_url for brand-token flow-through and sitemap base URL. */
-export async function getTenantInfo(tenant: string): Promise<{ theme?: Record<string, string>; store_url?: string }> {
+/** store_url for the sitemap base URL / "already has a custom domain" checks. */
+export async function getTenantInfo(tenant: string): Promise<{ store_url?: string }> {
   try {
     const res = await fetch(`${VULA_API}/v1/tenants/${tenant}`, { headers, next: { revalidate: 300 } });
     if (!res.ok) return {};
     const d = await res.json();
-    return { theme: d.theme || {}, store_url: d.store_url };
+    return { store_url: d.store_url };
+  } catch {
+    return {};
+  }
+}
+
+export type Brand = {
+  name?: string; logo_url?: string; accent_color?: string; ink_color?: string;
+  logo_align?: "left" | "center"; logo_size?: "sm" | "md" | "lg";
+  header_sticky?: boolean; header_nav_position?: "right" | "center" | "below-logo";
+  header_cta_text?: string; header_cta_link?: string; whatsapp?: string;
+};
+
+/** Single source of truth for brand + header layout (GET /v1/commerce/{tenant}/brand) — the
+ * SAME tenant-editable commerce_invoice_settings row that already drives invoice PDFs; nothing
+ * here is a separate/parallel config. */
+export async function getBrand(tenant: string): Promise<Brand> {
+  try {
+    const res = await fetch(`${VULA_API}/v1/commerce/${tenant}/brand`, { headers, next: { revalidate: 300 } });
+    if (!res.ok) return {};
+    return res.json();
   } catch {
     return {};
   }
